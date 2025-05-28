@@ -1,11 +1,6 @@
-import { UserButton } from "@clerk/nextjs";
-import ThemeToggler from "@/components/theme-toggler";
+import React from "react";
+
 
 export default function Home() {
-  return (
-    <div>
-      <UserButton />
-      <ThemeToggler />
-    </div>
-  );
+  return <div>Home</div>;
 }
