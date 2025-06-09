@@ -61,7 +61,7 @@ export default function VideoPlayer({ video }: { video: Video }) {
             // Ensure audioUrl is properly passed
             audioUrl: video.audioUrl || ''
           }, 
-          setDurationInFrames: setDurationInFrames 
+          setDurationInFrames 
         }}
         controls
         style={{
