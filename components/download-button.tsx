@@ -2,13 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { cn } from "@/lib/utils";
 
 interface DownloadButtonProps {
   videoId: string;
   downloadUrl: string | null;
+  className?: string;
 }
 
-export const DownloadButton: React.FC<DownloadButtonProps> = ({ videoId, downloadUrl }) => {
+export const DownloadButton: React.FC<DownloadButtonProps> = ({ videoId, downloadUrl, className }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { toast } = useToast();
 
@@ -60,7 +62,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({ videoId, downloa
       disabled={isDownloading || !downloadUrl}
       variant="outline"
       size="sm"
-      className="flex items-center gap-2"
+      className={cn("flex items-center gap-2", className)}
     >
       {isDownloading ? (
         <>
