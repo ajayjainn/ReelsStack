@@ -1,6 +1,6 @@
 "use client";
 
-import { CircleUser, FileVideo, PanelsTopLeft } from "lucide-react";
+import { CircleUser, FileVideo, PanelsTopLeft, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,8 @@ export default function SideNavigation() {
     { id: 1, name: "Dashboard", path: "/dashboard", icon: PanelsTopLeft },
     { id: 2, name: "Create New", path: "/create-new", icon: FileVideo },
     { id: 3, name: "Account", path: "/account", icon: CircleUser },
+    { id: 4, name: "Community", path: "/community", icon: Users },
+    { id: 5, name: "Account", path: "/account", icon: CircleUser },
   ];
 
   return (
