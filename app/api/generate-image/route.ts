@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { fal } from "@fal-ai/client";
 
 export const runtime = 'edge';
 
-fal.config({
-  credentials: process.env.FAL_AI_API_KEY
-});
 
 async function generateSHA1(message: string) {
   const msgUint8 = new TextEncoder().encode(message);
@@ -23,7 +19,7 @@ async function uploadToCloudinary(base64Image: string) {
 
   const params = {
     timestamp: timestamp,
-    folder: 'reels-stack'
+    folder: 'reelsstack'
   };
 
   // Ensure the base64 string is correctly formatted
@@ -62,31 +58,26 @@ async function uploadToCloudinary(base64Image: string) {
 
 async function generateImageWithFlux(prompt: string): Promise<string> {
   try {
-    const result = await fal.subscribe("fal-ai/flux/schnell", {
-      input: {
-        prompt: prompt,
-        image_size: "portrait_16_9",
-        num_inference_steps: 4,
-        num_images: 1,
-        enable_safety_checker: true
-      },
-      logs: true,
-      onQueueUpdate: (update) => {
-        if (update.status === "IN_PROGRESS") {
-          update.logs.map((log) => log.message).forEach(console.log);
-        }
-      }
-    });
-
-    console.log(result.data);
+    // Construct the Pollinations URL with the prompt
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=144&height=256&seed=27529&model=flux&nologo=true&private=false&enhance=false&safe=false`;
     
-    // Ensure we are returning the correct image URL
-    const imageUrl = result.data.images[0].url; // Get the image URL
-    const response = await fetch(imageUrl); // Fetch the image as a response
-    const arrayBuffer = await response.arrayBuffer(); // Get the response as an ArrayBuffer
-    const base64Image = Buffer.from(arrayBuffer).toString('base64'); // Convert ArrayBuffer to base64 string
-
-    return `data:image/jpeg;base64,${base64Image}`; // Return the base64 image with the correct prefix
+    console.log('Fetching image from:', pollinationsUrl);
+    
+    // Fetch the image directly from Pollinations
+    const response = await fetch(pollinationsUrl);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+    }
+    
+    // Get the image as an ArrayBuffer
+    const arrayBuffer = await response.arrayBuffer();
+    
+    // Convert ArrayBuffer to base64 string
+    const base64Image = Buffer.from(arrayBuffer).toString('base64');
+    
+    // Return the base64 image with the correct prefix
+    return `data:image/jpeg;base64,${base64Image}`;
   } catch (error) {
     console.error("[IMAGE_GENERATION_ERROR]", error);
     throw error;

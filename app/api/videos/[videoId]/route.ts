@@ -41,7 +41,7 @@ export async function GET(
     };
 
     // Check if the current user is the owner
-    const { userId } = auth();
+    const { userId } = await auth();
     if (userId) {
       const user = await currentUser();
       const userEmail = user?.emailAddresses[0]?.emailAddress;
@@ -68,7 +68,7 @@ export async function PATCH(
 ) {
   try {
     const resolvedParams = await params;
-    const { userId } = auth();
+    const { userId } = await auth();
     if (!userId) {
       return new NextResponse("Unauthorized", { status: 401 });
     }

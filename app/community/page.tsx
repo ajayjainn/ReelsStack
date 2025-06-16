@@ -26,7 +26,6 @@ interface RawVideoData {
   imageUrls?: string[] | string | null;
   createdAt?: string;
   status?: string;
-  isFavourite?: boolean;
   [key: string]: unknown; // Allow for other properties with unknown type
 }
 
@@ -53,7 +52,6 @@ export default function CommunityPage() {
       description: video.description || null,
       status: video.status || 'completed',
       createdAt: video.createdAt || new Date().toISOString(),
-      isFavourite: video.isFavourite || false
     };
   }, []);
 

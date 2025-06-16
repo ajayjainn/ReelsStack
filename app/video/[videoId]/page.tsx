@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,13 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, Pencil, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Pencil,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +65,7 @@ interface VideoDetails {
 }
 
 export default function VideoPage() {
+  const router = useRouter();
   const { videoId } = useParams();
   const [video, setVideo] = useState<VideoDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -79,6 +86,7 @@ export default function VideoPage() {
   // Workflow state
   const [isWorkflowInProgress, setIsWorkflowInProgress] = useState(false);
   const [workflowStatus, setWorkflowStatus] = useState<string | null>(null);
+  const [renderProgress, setRenderProgress] = useState<number>(0);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -130,12 +138,15 @@ export default function VideoPage() {
         ) {
           setIsWorkflowInProgress(true);
           setWorkflowStatus(response.data.status);
+          // Set the render progress percentage from the API response
+          setRenderProgress(response.data.progressPercentage || 0);
 
-          // Check again after 30 seconds
-          setTimeout(checkWorkflowStatus, 30000);
+          // Check again after 10 seconds (more frequent updates for better UX)
+          setTimeout(checkWorkflowStatus, 10000);
         } else if (response.data.downloadUrl) {
           setIsWorkflowInProgress(false);
           setWorkflowStatus("completed");
+          setRenderProgress(100);
 
           // Update video with download URL
           setVideo((prev) =>
@@ -144,6 +155,8 @@ export default function VideoPage() {
         } else {
           setIsWorkflowInProgress(false);
           setWorkflowStatus(response.data.status || null);
+          // If the workflow is completed but failed, set progress to 0
+          setRenderProgress(response.data.progressPercentage || 0);
         }
       } catch (error) {
         console.error("Error checking workflow status:", error);
@@ -229,6 +242,10 @@ export default function VideoPage() {
     setWorkflowStatus("starting");
   };
 
+  const handleBack = () => {
+    router.back();
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -248,13 +265,21 @@ export default function VideoPage() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 border rounded-md my-4">
+    <div className="container mx-auto py-5 px-4 border rounded-md my-4">
+      <Button
+        variant="outline"
+        onClick={handleBack}
+        className="mb-4 flex items-center gap-2 w-fit"
+      >
+        <ArrowLeft size={16} />
+        Back
+      </Button>
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
         {/* Left Column - Video Player */}
         <RemotionVideoPlayer video={video} />
 
         {/* Right Column - Video Details */}
-        <div className="space-y-2 col-span-3">
+        <div className="col-span-3">
           {/* Title and Description with single edit option */}
           {isEditing ? (
             <div className="mt-2">
@@ -270,7 +295,7 @@ export default function VideoPage() {
                   type="text"
                   value={editedTitle}
                   onChange={(e) => setEditedTitle(e.target.value)}
-                  className="text-xl font-bold w-full"
+                  className="text-xl w-full"
                   disabled={isSaving}
                 />
               </div>
@@ -293,17 +318,12 @@ export default function VideoPage() {
               </div>
 
               <div className="flex justify-end gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleSave}
-                  disabled={isSaving}
-                >
+                <Button size="sm" onClick={handleSave} disabled={isSaving}>
                   Save
                 </Button>
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant="outline"
                   onClick={() => {
                     setIsEditing(false);
                     setEditedTitle(video.title);
@@ -316,7 +336,7 @@ export default function VideoPage() {
               </div>
             </div>
           ) : (
-            <>
+            <div className="mt-2">
               <div className="flex items-center mt-2">
                 <h1 className="text-3xl font-bold flex-grow">{video.title}</h1>
                 {video.isOwner && (
@@ -334,12 +354,12 @@ export default function VideoPage() {
                   </Button>
                 )}
               </div>
-              <div className="-mt-1">
+              <div>
                 <p className="text-gray-600 dark:text-gray-400">
                   {video.description || "No description"}
                 </p>
               </div>
-            </>
+            </div>
           )}
 
           <hr className="my-6" />
@@ -387,7 +407,7 @@ export default function VideoPage() {
           </p>
 
           {/* Action Buttons - placed just above Technical Details */}
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 mt-4">
             {video.isOwner &&
               video.status === "completed" &&
               !video.downloadUrl && (
@@ -404,10 +424,20 @@ export default function VideoPage() {
               )}
             {isWorkflowInProgress && (
               <div className="col-span-2">
-                <p className="text-sm text-muted-foreground mb-2">
-                  <strong>Note:</strong> It may take three or more minutes to
-                  download and render the video. Please be patient.
-                </p>
+                {/* Progress bar */}
+                <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2 dark:bg-gray-700">
+                  <div
+                    className="bg-primary h-2.5 rounded-full transition-all duration-500 ease-in-out"
+                    style={{ width: `${renderProgress}%` }}
+                  ></div>
+                </div>
+                {/* Progress percentage and status */}
+                <div className="flex justify-between text-xs text-muted-foreground mb-2">
+                  <span>Progress: {renderProgress}%</span>
+                  <span>
+                    {workflowStatus === "queued" ? "In Queue" : "Rendering"}
+                  </span>
+                </div>
                 <Button
                   disabled
                   size="sm"
@@ -455,12 +485,12 @@ export default function VideoPage() {
                 )}
               </Button>
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4">
+            <CollapsibleContent className="space-y-2">
               {/* Script */}
               <Collapsible
                 open={expandedSections.script}
                 onOpenChange={() => toggleSection("script")}
-                className="border rounded-md p-2"
+                className="border rounded-md"
               >
                 <CollapsibleTrigger asChild>
                   <Button
@@ -508,7 +538,7 @@ export default function VideoPage() {
               <Collapsible
                 open={expandedSections.audio}
                 onOpenChange={() => toggleSection("audio")}
-                className="border rounded-md p-2"
+                className="border rounded-md"
               >
                 <CollapsibleTrigger asChild>
                   <Button
@@ -541,7 +571,7 @@ export default function VideoPage() {
               <Collapsible
                 open={expandedSections.images}
                 onOpenChange={() => toggleSection("images")}
-                className="border rounded-md p-2"
+                className="border rounded-md"
               >
                 <CollapsibleTrigger asChild>
                   <Button

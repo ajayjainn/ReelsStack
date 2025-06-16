@@ -18,10 +18,8 @@ export type PresetType =
 export type AnimatedGroupProps = {
   children: ReactNode;
   className?: string;
-  variants?: {
-    container?: Variants;
-    item?: Variants;
-  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  variants?: any;
   preset?: PresetType;
   as?: React.ElementType;
   asChild?: React.ElementType;

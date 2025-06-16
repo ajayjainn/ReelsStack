@@ -15,7 +15,7 @@ export async function POST(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     const resolvedParams = await params;
     const videoId = resolvedParams.videoId;
 
@@ -46,7 +46,7 @@ export async function POST(
 
     // Create GitHub workflow dispatch payload
     const payload = {
-      ref: "add-remotion-action", // Use your current branch name
+      ref: "main", // Use the main branch
       inputs: {
         videoId,
         width: width.toString(),

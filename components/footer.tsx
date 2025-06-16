@@ -11,10 +11,6 @@ const links = [
     href: "/create-new",
   },
   {
-    title: "Your Favourites",
-    href: "/favourites",
-  },
-  {
     title: "Visit The Community",
     href: "/community",
   },
@@ -41,10 +37,10 @@ export default function Footer() {
         </div>
         <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
           <Link
-            href="https://x.com/ajayjain1024"
+            href="https://linkedin.com/in/ajayjainn"
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="X/Twitter"
+            aria-label="LinkedIn"
             className="text-muted-foreground hover:text-primary block transition-all duration-150"
           >
             <svg

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import axios from "axios";
-import VideoGrid from "@/components/video/video-card";
+import VideoGrid from "@/components/video/video-grid";
 import { VideoData } from "@/components/video/video-card";
 
 // Interface for raw video data from API
@@ -31,7 +31,7 @@ export default function Dashboard() {
       title: video.title || 'Untitled Video',
       description: video.description || null,
       status: video.status || 'completed',
-      createdAt: video.createdAt || new Date().toISOString()
+      createdAt: video.createdAt || new Date().toISOString(),
     };
   }, []);
 
@@ -63,14 +63,29 @@ export default function Dashboard() {
       }
       setError(null);
       
-      const response = await axios.get('/api/videos');
+      // Add cache prevention parameters to ensure we get fresh data
+      const response = await axios.get('/api/videos', {
+        params: {
+          _t: new Date().getTime() // Add timestamp to prevent caching
+        },
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
       
       // Process the videos to ensure they have all required fields
       const processedVideos = response.data.map(processVideoData);
       
+      // Sort videos by createdAt in descending order (newest first)
+      const sortedVideos = [...processedVideos].sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      
       // Merge with existing videos to prevent unnecessary re-renders
       setVideoList(currentVideos => 
-        isInitialLoad ? processedVideos : mergeVideoLists(currentVideos, processedVideos)
+        isInitialLoad ? sortedVideos : mergeVideoLists(currentVideos, sortedVideos)
       );
     } catch (err) {
       console.error('Error fetching videos:', err);
@@ -93,9 +108,9 @@ export default function Dashboard() {
   }, [fetchVideos]);
 
   return (
-    <div className="pt-4 pb-6 px-4 mx-auto">
+    <div className="pt-4 pb-8 px-8 mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">My Videos</h1>
+      <h1 className="text-2xl font-bold mt-2 mb-4">My Videos</h1>
         <Button>
           <Link href="create-new">Create New</Link>
         </Button>

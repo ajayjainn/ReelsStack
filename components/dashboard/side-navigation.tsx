@@ -11,9 +11,8 @@ export default function SideNavigation() {
   const options = [
     { id: 1, name: "Dashboard", path: "/dashboard", icon: PanelsTopLeft },
     { id: 2, name: "Create New", path: "/create-new", icon: FileVideo },
-    { id: 3, name: "Account", path: "/account", icon: CircleUser },
-    { id: 4, name: "Community", path: "/community", icon: Users },
-    { id: 5, name: "Account", path: "/account", icon: CircleUser },
+    { id: 3, name: "Community", path: "/community", icon: Users },
+    { id: 4, name: "Account", path: "/account", icon: CircleUser },
   ];
 
   return (

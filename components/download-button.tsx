@@ -60,7 +60,6 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({ videoId, downloa
     <Button
       onClick={handleDownload}
       disabled={isDownloading || !downloadUrl}
-      variant="outline"
       size="sm"
       className={cn("flex items-center gap-2", className)}
     >

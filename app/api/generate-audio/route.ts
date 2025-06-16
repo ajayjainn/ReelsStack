@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import cloudinary from '@/lib/cloudinary';
-import { MsEdgeTTS, OUTPUT_FORMAT } from 'msedge-tts';
+import gTTS from 'gtts';
 
 interface Scene {
   imagePrompt: string;
@@ -23,83 +21,100 @@ interface CloudinaryUploadResult {
 
 export async function POST(request: Request) {
   try {
+    console.log('Starting audio generation process...');
+    
     const { scenes, voice } = await request.json() as { scenes: Scene[], voice: string };
-    
-    // Combine all content text with a pause between each segment
+    console.log('Received scenes:', scenes.length, 'Voice:', voice);
+
     const combinedText = scenes.map(scene => scene.contentText).join('\n\n');
+    console.log('Combined text length:', combinedText.length);
 
-    // Initialize Microsoft Edge TTS
-    const tts = new MsEdgeTTS();
-    // Use the provided voice
-    await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+    if (combinedText.length === 0) {
+      throw new Error('No text provided for audio generation');
+    }
 
-    // Generate audio using Edge TTS
-    const { audioStream } = await tts.toStream(combinedText);
+    console.log('Initializing gTTS...');
+    const gtts = new gTTS(combinedText, 'en');
+
+    console.log('Creating audio stream...');
+    const audioStream = gtts.stream();
     const chunks: Buffer[] = [];
-    
-    await new Promise((resolve, reject) => {
+
+    // Convert stream to buffer using native Node.js streams
+    await new Promise<void>((resolve, reject) => {
       audioStream.on('data', (chunk: Buffer) => {
+        console.log('Received chunk of size:', chunk.length);
         chunks.push(chunk);
       });
       
       audioStream.on('end', () => {
-        resolve(null);
+        console.log('Stream ended successfully');
+        resolve();
       });
       
-      audioStream.on('error', (error) => {
+      audioStream.on('error', (error: Error) => {
+        console.error('Stream error:', error);
         reject(error);
       });
     });
-    
+
     const audioBuffer = Buffer.concat(chunks);
+    console.log('Final buffer size:', audioBuffer.length);
 
-    // Ensure audio directory exists
-    const audioDir = path.join(process.cwd(), 'audio');
-    if (!fs.existsSync(audioDir)) {
-      fs.mkdirSync(audioDir, { recursive: true });
-    }
-
-    // Generate a unique filename using timestamp
     const fileName = `audio_${Date.now()}.mp3`;
-    const filePath = path.join(audioDir, fileName);
-    fs.writeFileSync(filePath, audioBuffer);
+    console.log('Uploading to Cloudinary:', fileName);
 
-    try {
-      // Upload to Cloudinary in the reels-stack folder
-      const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
-        cloudinary.uploader.upload(
-          filePath,
-          {
-            resource_type: 'auto',
-            folder: 'reels-stack',
-            public_id: path.parse(fileName).name, 
-          },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result as CloudinaryUploadResult);
+    const uploadResult = await new Promise<CloudinaryUploadResult>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'auto',
+          folder: 'reelsstack',
+          public_id: fileName.replace('.mp3', ''),
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary upload error:', error);
+            reject(error);
+          } else {
+            console.log('Cloudinary upload successful');
+            resolve(result as CloudinaryUploadResult);
           }
-        );
+        }
+      );
+
+      // Set timeout for upload
+      const uploadTimeout = setTimeout(() => {
+        reject(new Error('Upload timed out after 30 seconds'));
+      }, 30000);
+
+      uploadStream.on('error', (error) => {
+        clearTimeout(uploadTimeout);
+        console.error('Upload stream error:', error);
+        reject(error);
       });
 
-      // Delete local file after successful upload
-      fs.unlinkSync(filePath);
-
-      return NextResponse.json({ 
-        success: true, 
-        message: 'Audio file generated and uploaded successfully',
-        audioUrl: uploadResult.secure_url
+      uploadStream.on('finish', () => {
+        clearTimeout(uploadTimeout);
       });
 
-    } catch (uploadError) {
-      // Delete local file if upload fails
-      fs.unlinkSync(filePath);
-      throw uploadError;
-    }
+      uploadStream.end(audioBuffer);
+    });
+
+    console.log('Process completed successfully');
+    return NextResponse.json({
+      success: true,
+      message: 'Audio file generated and uploaded successfully',
+      audioUrl: uploadResult.secure_url
+    });
 
   } catch (error) {
-    console.error('Error generating audio:', error);
+    console.error('Error in audio generation process:', error);
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Unknown error' },
+      { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      },
       { status: 500 }
     );
   }

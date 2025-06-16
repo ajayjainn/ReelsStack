@@ -7,7 +7,7 @@ import { eq, and } from "drizzle-orm";
 // Create a new video
 export async function POST(req: Request) {
     try {
-        const { userId } = auth();
+        const { userId } = await auth();
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
@@ -61,48 +61,47 @@ export async function POST(req: Request) {
 // Get all videos for the current user
 export async function GET() {
     try {
-        const { userId } = auth();
-        if (!userId) {
+        const { userId: clerkUserId } = await auth();
+        const user = await currentUser();
+
+        if (!clerkUserId || !user?.emailAddresses?.[0]?.emailAddress) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
 
-        // Get user's email from Clerk
-        const user = await currentUser();
-        const userEmail = user?.emailAddresses[0]?.emailAddress;
-        
-        if (!userEmail) {
-            return new NextResponse("User email not found", { status: 400 });
+        // Get the user's email from Clerk
+        const userEmail = user.emailAddresses[0].emailAddress;
+
+        // Get the user's UUID from our database
+        const dbUser = await db
+            .select({
+                id: Users.id
+            })
+            .from(Users)
+            .where(eq(Users.email, userEmail))
+            .limit(1);
+
+        if (dbUser.length === 0) {
+            return new NextResponse("User not found", { status: 404 });
         }
 
-        // Find user in our database by email
-        const dbUser = await db.select().from(Users).where(eq(Users.email, userEmail));
-        
-        if (!dbUser || dbUser.length === 0) {
-            return new NextResponse("User not found in database", { status: 404 });
-        }
+        const userId = dbUser[0].id;
 
-        // Get all videos for this user
-        const videos = await db.select().from(Videos)
-            .where(eq(Videos.createdBy, dbUser[0].id))
-            .orderBy(Videos.createdAt);
+        // Get only videos created by the current user
+        const videos = await db
+            .select({
+                id: Videos.id,
+                title: Videos.title,
+                description: Videos.description,
+                imageUrls: Videos.imageUrls,
+                createdAt: Videos.createdAt,
+                status: Videos.status,
+            })
+            .from(Videos)
+            .where(eq(Videos.createdBy, userId));
 
-        // Process videos to ensure compatibility with schema changes
-        const processedVideos = videos.map(video => {
-            // Make sure imageUrls is always an array
-            if (!video.imageUrls || !Array.isArray(video.imageUrls)) {
-                video.imageUrls = [];
-            }
-            
-            // Remove any fields that are not in the schema
-            const safeVideo = { ...video };
-            
-            // Return the processed video
-            return safeVideo;
-        });
-
-        return NextResponse.json(processedVideos);
+        return NextResponse.json(videos);
     } catch (error) {
-        console.log('[VIDEOS_GET]', error);
+        console.error("[VIDEOS_GET]", error);
         return new NextResponse("Internal Error", { status: 500 });
     }
 }
@@ -110,7 +109,7 @@ export async function GET() {
 // Update a video's status or other fields
 export async function PATCH(req: Request) {
     try {
-        const { userId } = auth();
+        const { userId } = await auth();
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 });
         }
@@ -173,7 +172,7 @@ export async function PATCH(req: Request) {
 // Delete a video
 export async function DELETE(req: Request) {
     try {
-        const { userId } = auth();
+        const { userId } = await auth();
         if (!userId) {
             return new NextResponse("Unauthorized", { status: 401 });
         }

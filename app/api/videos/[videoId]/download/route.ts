@@ -10,7 +10,7 @@ export async function GET(
   { params }: { params: Promise<{ videoId: string }> }
 ) {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
     const resolvedParams = await params;
     const videoId = resolvedParams.videoId;
 
