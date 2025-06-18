@@ -57,31 +57,41 @@ async function uploadToCloudinary(base64Image: string) {
 }
 
 async function generateImageWithFlux(prompt: string): Promise<string> {
-  try {
-    // Construct the Pollinations URL with the prompt
-    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=144&height=256&seed=27529&model=flux&nologo=true&private=false&enhance=false&safe=false`;
-    
-    console.log('Fetching image from:', pollinationsUrl);
-    
-    // Fetch the image directly from Pollinations
-    const response = await fetch(pollinationsUrl);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+  const maxAttempts = 3;
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      // Construct the Pollinations URL with the prompt
+      const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1080&height=1920&seed=27529&model=flux&nologo=true&private=false&enhance=false&safe=false`;
+      
+      console.log(`Fetching image from: ${pollinationsUrl} (Attempt ${attempt})`);
+      
+      // Fetch the image directly from Pollinations
+      const response = await fetch(pollinationsUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+      }
+      
+      // Get the image as an ArrayBuffer
+      const arrayBuffer = await response.arrayBuffer();
+      
+      // Convert ArrayBuffer to base64 string
+      const base64Image = Buffer.from(arrayBuffer).toString('base64');
+      
+      // Return the base64 image with the correct prefix
+      return `data:image/jpeg;base64,${base64Image}`;
+    } catch (error) {
+      lastError = error;
+      console.error(`[IMAGE_GENERATION_ERROR][Attempt ${attempt}]`, error);
+      if (attempt < maxAttempts) {
+        // Optionally, add a small delay before retrying
+        await new Promise(res => setTimeout(res, 500));
+      }
     }
-    
-    // Get the image as an ArrayBuffer
-    const arrayBuffer = await response.arrayBuffer();
-    
-    // Convert ArrayBuffer to base64 string
-    const base64Image = Buffer.from(arrayBuffer).toString('base64');
-    
-    // Return the base64 image with the correct prefix
-    return `data:image/jpeg;base64,${base64Image}`;
-  } catch (error) {
-    console.error("[IMAGE_GENERATION_ERROR]", error);
-    throw error;
   }
+  throw lastError;
 }
 
 export async function POST(req: Request) {

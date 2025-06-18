@@ -1,81 +1,129 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Github, Linkedin } from "lucide-react";
 
 const links = [
   {
-    title: "Go To Your Dashboard",
-    href: "/dashboard",
+    title: "Product",
+    items: [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Create New", href: "/create-new" },
+      { label: "Community", href: "/community" },
+      { label: "Pricing", href: "/pricing" },
+    ]
   },
   {
-    title: "Create A Reel", 
-    href: "/create-new",
+    title: "Resources",
+    items: [
+      { label: "Documentation", href: "/docs" },
+      { label: "Blog", href: "/blog" },
+      { label: "Examples", href: "/examples" },
+      { label: "Templates", href: "/templates" },
+    ]
   },
   {
-    title: "Visit The Community",
-    href: "/community",
-  },
+    title: "Company",
+    items: [
+      { label: "About", href: "/about" },
+      { label: "Contact", href: "/contact" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
+    ]
+  }
 ];
 
 export default function Footer() {
   return (
-    <footer className="shadow-sm border py-14 rounded-md mb-2">
-      <div className="mx-auto max-w-5xl px-6">
-        <Link href="/" className="mx-auto block size-fit">
-          <Image src="/logo.svg" alt="Reels Stack" width={40} height={40} />
-        </Link>
-
-        <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
-          {links.map((link, index) => (
-            <Link
-              key={index}
-              href={link.href}
-              className="text-muted-foreground hover:text-primary block duration-150"
-            >
-              <span>{link.title}</span>
+    <footer className="border-t bg-background/50 backdrop-blur-lg">
+      <div className="mx-auto max-w-7xl px-6 py-12 md:py-16 lg:px-8 lg:py-20">
+        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+          <div className="space-y-4">
+            <Link href="/" className="flex items-center space-x-3">
+              <Image src="/logo.svg" alt="Reels Stack" width={36} height={36} className="rounded-lg" />
+              <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
+                Reels Stack
+              </span>
             </Link>
-          ))}
+            <p className="mt-2 max-w-xs text-sm text-muted-foreground">
+              Create stunning video content in minutes with AI-powered tools and templates.
+            </p>
+            <div className="flex space-x-4">
+              <Link
+                href="https://www.linkedin.com/in/ajayjainn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Linkedin className="h-5 w-5" />
+                <span className="sr-only">LinkedIn</span>
+              </Link>
+              <Link
+                href="https://github.com/ajayjainn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Github className="h-5 w-5" />
+                <span className="sr-only">GitHub</span>
+              </Link>
+            </div>
+          </div>
+          
+          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+            <div className="md:grid md:grid-cols-2 md:gap-8">
+              <div>
+                <h3 className="text-sm font-semibold">{links[0].title}</h3>
+                <ul role="list" className="mt-4 space-y-3">
+                  {links[0].items.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-10 md:mt-0">
+                <h3 className="text-sm font-semibold">{links[1].title}</h3>
+                <ul role="list" className="mt-4 space-y-3">
+                  {links[1].items.map((item) => (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold">{links[2].title}</h3>
+              <ul role="list" className="mt-4 space-y-3">
+                {links[2].items.map((item) => (
+                  <li key={item.label}>
+                    <Link
+                      href={item.href}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
-        <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
-          <Link
-            href="https://linkedin.com/in/ajayjainn"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn"
-            className="text-muted-foreground hover:text-primary block transition-all duration-150"
-          >
-            <svg
-              className="size-6"
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M10.488 14.651L15.25 21h7l-7.858-10.478L20.93 3h-2.65l-5.117 5.886L8.75 3h-7l7.51 10.015L2.32 21h2.65zM16.25 19L5.75 5h2l10.5 14z"
-              ></path>
-            </svg>
-          </Link>
-          <Link
-            href="https://github.com/ajayjainn/ReelsStack"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-            className="text-muted-foreground hover:text-primary block transition-all duration-150"
-          >
-            <svg
-              className="size-6"
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              viewBox="0 0 24 24"
-            >
-              <path
-                fill="currentColor"
-                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-              />
-            </svg>
-          </Link>
+        
+        <div className="mt-12 pt-8 border-t">
+          <p className="text-xs text-muted-foreground text-center">
+            &copy; {new Date().getFullYear()} Reels Stack. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

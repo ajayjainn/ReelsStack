@@ -1,8 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import axios from "axios";
 import VideoGrid from "@/components/video/video-grid";
 import { VideoData } from "@/components/video/video-card";
@@ -111,9 +109,6 @@ export default function Dashboard() {
     <div className="pt-4 pb-8 px-8 mx-auto">
       <div className="flex justify-between items-center mb-4">
       <h1 className="text-2xl font-bold mt-2 mb-4">My Videos</h1>
-        <Button>
-          <Link href="create-new">Create New</Link>
-        </Button>
       </div>
       
       <VideoGrid 

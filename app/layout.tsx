@@ -27,7 +27,7 @@ export default function RootLayout({
     <ClerkProvider dynamic>
       <html lang="en">
         <body
-          className={`${geist.variable} antialiased mx-auto max-w-7xl`}
+          className={`${geist.variable} antialiased`}
           suppressHydrationWarning
         >
           <ThemeProvider

@@ -1,11 +1,38 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Play, Sparkles, Users, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { TextEffect } from "@/components/ui/text-effect";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 import { cn } from "@/lib/utils";
+
+const features = [
+  {
+    title: "AI-Driven Video Generation",
+    description:
+      "Effortlessly turn your concepts into captivating videos using cutting-edge AI.",
+    icon: Sparkles,
+  },
+  {
+    title: "Lightning-Fast Processing",
+    description:
+      "Produce videos in just minutes with our rapid and streamlined rendering.",
+    icon: Play,
+  },
+  {
+    title: "Get Inspired",
+    description:
+      "Browse community-made videos to spark your creativity and find inspiration.",
+    icon: Users,
+  },
+  {
+    title: "Themes & Captions",
+    description:
+      "Choose from a range of video themes and caption styles to match your message.",
+    icon: Video,
+  },
+];
 
 const transitionVariants = {
   item: {
@@ -29,15 +56,17 @@ const transitionVariants = {
 
 export default function Home() {
   return (
-    <main>
-      <section className="pt-4 sm:pt-8 md:pt-12">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center mx-auto pb-6 sm:pb-8 md:pb-12 lg:pb-16">
+    <main className="flex-1">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-8 sm:pt-12 lg:pt-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center relative z-10">
             <TextEffect
-              preset="fade-in-blur"
-              speedSegment={0.5}
               as="h1"
-              className="mt-4 sm:mt-6 text-balance font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5rem] tracking-tight"
+              className="opacity-100 blur-0 mt-4 sm:mt-6 text-balance font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-[5rem] tracking-tight
+    bg-clip-text text-transparent
+    bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800
+    dark:from-gray-300 dark:via-gray-400 dark:to-gray-300"
             >
               Reel It Right with ReelsStack!
             </TextEffect>
@@ -48,7 +77,7 @@ export default function Home() {
               speedSegment={0.5}
               delay={0.5}
               as="p"
-              className="mx-auto mt-4 sm:mt-6 md:mt-8 max-w-3xl text-balance text-sm sm:text-base md:text-lg text-foreground/80 leading-relaxed px-4 sm:px-0"
+              className="mx-auto mt-6 max-w-2xl text-balance text-lg sm:text-xl text-muted-foreground leading-relaxed"
             >
               ReelsStack empowers you to create scroll-stopping video content in minutes.
   No editing skills needed — just your idea and our AI-driven tools.
@@ -67,69 +96,109 @@ export default function Home() {
                 },
                 ...transitionVariants,
               }}
-              className="mt-6 sm:mt-10 flex flex-row items-center justify-center gap-4 px-4"
+              className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 px-4"
             >
-              <Button asChild size="lg" className="rounded-xl sm:text-base w-full sm:w-auto">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto text-base rounded-full"
+                asChild
+              >
                 <Link href="/sign-up">
-                  Start Creating Free
+                  Get Started Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button
-                asChild
                 variant="outline"
                 size="lg"
-                className="rounded-xl sm:text-base w-full sm:w-auto"
+                className="w-full sm:w-auto text-base rounded-full"
+                asChild
               >
-                <Link href="/community">See Examples</Link>
+                <Link href="/community">View Examples</Link>
               </Button>
             </AnimatedGroup>
           </div>
-        </div>
 
-        <AnimatedGroup
-          variants={{
-            container: {
-              visible: {
-                transition: {
-                  staggerChildren: 0.05,
-                  delayChildren: 0.85,
+          {/* Hero Image */}
+          <AnimatedGroup
+            variants={{
+              container: {
+                visible: {
+                  transition: {
+                    staggerChildren: 0.05,
+                    delayChildren: 0.85,
+                  },
                 },
               },
-            },
-            ...transitionVariants,
-          }}
-        >
-          <div className="mt-2 overflow-hidden px-2 sm:px-4 md:px-6 lg:px-8 pb-8 sm:pb-12 md:pb-16">
-            <div
-              className={cn(
-                "relative mx-auto max-w-6xl overflow-hidden rounded-xl sm:rounded-2xl border-2 p-1 sm:p-2 md:p-4",
-                "bg-background shadow-lg ring-1 ring-foreground/5",
-                "dark:bg-background/30 dark:backdrop-blur-sm dark:ring-white/10"
-              )}
-            >
-              <Image
-                className="aspect-[16/9] w-full relative hidden rounded-lg sm:rounded-xl dark:block"
-                src="/dark.png"
-                alt="Application dashboard"
-                width={2700}
-                height={1440}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-                priority
-              />
-
-              <Image
-                className="aspect-[16/9] w-full relative rounded-lg sm:rounded-xl border border-border/20 dark:hidden"
-                src="/light.png"
-                alt="Application dashboard"
-                width={2700}
-                height={1440}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
-                priority
-              />
+              ...transitionVariants,
+            }}
+            className="mt-16 sm:mt-20"
+          >
+            <div className="relative mx-auto max-w-6xl">
+              <div
+                className={cn(
+                  "relative overflow-hidden rounded-2xl border bg-background p-2 shadow-2xl ring-1 ring-foreground/5",
+                  "dark:bg-background/30 dark:backdrop-blur-2xl dark:ring-white/10"
+                )}
+              >
+                <Image
+                  className="w-full rounded-xl"
+                  src="/dark.png"
+                  alt="Application dashboard"
+                  width={2700}
+                  height={1440}
+                  priority
+                />
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-foreground/5 dark:ring-white/10" />
+              </div>
             </div>
-          </div>
-        </AnimatedGroup>
+          </AnimatedGroup>
+        </div>
+
+        {/* Background gradient effects */}
+        <div
+          className="absolute left-1/2 top-0 -z-10 -translate-x-1/2 blur-3xl xl:-top-6"
+          aria-hidden="true"
+        >
+          <div
+            className="aspect-[1155/678] w-[72.1875rem] bg-gradient-to-tr from-primary to-primary/30 opacity-20"
+            style={{
+              clipPath:
+                "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+            }}
+          />
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 sm:py-32">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+            Everything you need to create amazing videos
+          </h2>
+          <p className="mt-6 text-lg leading-8 text-muted-foreground">
+            Our platform combines powerful AI technology with an intuitive
+            interface to help you create professional-quality videos in minutes.
+          </p>
+        </div>
+        <div className="mx-auto mt-16 max-w-5xl sm:mt-20 lg:mt-24 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2">
+          {features.map((feature) => (
+            <div key={feature.title} className="flex gap-6">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                <feature.icon
+                  className="h-6 w-6 text-primary"
+                  aria-hidden="true"
+                />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold">{feature.title}</h3>
+                <p className="mt-2 text-muted-foreground">
+                  {feature.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );

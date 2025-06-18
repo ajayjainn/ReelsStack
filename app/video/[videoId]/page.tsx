@@ -66,7 +66,7 @@ interface VideoDetails {
 
 export default function VideoPage() {
   const router = useRouter();
-  const { videoId } = useParams();
+  const { videoId } = useParams() as { videoId: string }; 
   const [video, setVideo] = useState<VideoDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

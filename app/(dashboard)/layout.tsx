@@ -21,12 +21,20 @@ export default async function DashboardLayout({
   }
 
   return (
-    <section className="max-w-7xl mx-auto pt-2 pb-4">
-      <div className="flex md:min-h-[calc(100vh-120px)]">
-        <div className="hidden md:block bg-background w-72 border rounded-md">
-          <SideNavigation />
+    <section>
+      <div className="flex min-h-[calc(100vh-4rem)]">
+        <div className="hidden md:block w-72 p-4">
+          <div className="sticky top-20">
+            <div className="rounded-xl border bg-card p-1">
+              <SideNavigation />
+            </div>
+          </div>
         </div>
-        <div className="flex-1 md:ml-4 border rounded-md">{children}</div>
+        <div className="flex-1 px-4 md:px-6 py-4">
+          <div className="rounded-xl border bg-card min-h-[calc(100vh-5rem)]">
+            {children}
+          </div>
+        </div>
       </div>
     </section>
   );

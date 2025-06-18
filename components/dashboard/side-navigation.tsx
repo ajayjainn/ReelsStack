@@ -1,40 +1,61 @@
 "use client";
 
-import { CircleUser, FileVideo, PanelsTopLeft, Users } from "lucide-react";
+import { CircleUser, PanelsTopLeft, Users, Video } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
+const navigationItems = [
+  {
+    title: "Overview",
+    items: [
+      { name: "Dashboard", path: "/dashboard", icon: PanelsTopLeft }
+    ],
+  },
+  {
+    title: "Content",
+    items: [
+      { name: "Create New", path: "/create-new", icon: Video },
+      { name: "Community", path: "/community", icon: Users },
+    ],
+  },
+  {
+    title: "Account",
+    items: [
+      { name: "Profile", path: "/account", icon: CircleUser },
+    ],
+  },
+];
+
 export default function SideNavigation() {
   const pathname = usePathname();
 
-  const options = [
-    { id: 1, name: "Dashboard", path: "/dashboard", icon: PanelsTopLeft },
-    { id: 2, name: "Create New", path: "/create-new", icon: FileVideo },
-    { id: 3, name: "Community", path: "/community", icon: Users },
-    { id: 4, name: "Account", path: "/account", icon: CircleUser },
-  ];
-
   return (
-    <nav className="h-[80vh] md:h-[60vh] shadow-md p-5 flex flex-col">
-      <ul className="space-y-2">
-        {options.map((option) => (
-          <li key={option.id}>
-            <Link
-              href={option.path}
-              className={cn(
-                "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
-                pathname === option.path
-                  ? "bg-primary text-primary-foreground"
-                  : "dark:hover:bg-neutral-900 hover:bg-neutral-100"
-              )}
-            >
-              <option.icon className="w-5 h-5" />
-              <span>{option.name}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <nav className="space-y-6 py-4">
+      {navigationItems.map((section) => (
+        <div key={section.title} className="px-3 py-2">
+          <h2 className="mb-2 px-4 text-sm font-semibold tracking-tight text-muted-foreground">
+            {section.title}
+          </h2>
+          <div className="space-y-1">
+            {section.items.map((item) => (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={cn(
+                  "flex items-center gap-x-3 rounded-lg px-4 py-2 text-sm font-medium transition-all hover:bg-accent/50",
+                  pathname === item.path
+                    ? "bg-accent/60 text-accent-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ))}
     </nav>
   );
 }
