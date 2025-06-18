@@ -58,7 +58,7 @@ export default function Footer() {
                 <span className="sr-only">LinkedIn</span>
               </Link>
               <Link
-                href="https://github.com/ajayjainn"
+                href="https://github.com/ajayjainn/ReelsStack"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"
